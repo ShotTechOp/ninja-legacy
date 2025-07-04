@@ -6,15 +6,15 @@ local player = Players.LocalPlayer
 -- Toggle state
 _G.autoFarm = true
 
--- 🔁 Toggle on F6
+-- 🔁 Toggle on F6 with console output
 UIS.InputBegan:Connect(function(input, processed)
     if not processed and input.KeyCode == Enum.KeyCode.F6 then
         _G.autoFarm = not _G.autoFarm
-        print("🔁 AutoFarm toggled to:", _G.autoFarm)
+        print("🔁 AutoFarm toggled " .. (_G.autoFarm and "ON ✅" or "OFF ❌"))
     end
 end)
 
--- 🛡️ BlueStacks-safe Anti-AFK
+-- 🛡️ Anti-AFK (BlueStacks safe)
 pcall(function()
     local vu = game:GetService("VirtualUser")
     player.Idled:Connect(function()
@@ -27,7 +27,6 @@ end)
 local combatRemote = ReplicatedStorage:WaitForChild("Combat"):WaitForChild("Remotes"):WaitForChild("Combat")
 local attackDelay = 0.1
 
--- 📜 Accept Sasuke mission
 local function acceptSasukeMission()
     pcall(function()
         local r = ReplicatedStorage:WaitForChild("Missions"):WaitForChild("BossScrolls"):WaitForChild("Sasuke"):FindFirstChild("Accept")
@@ -35,7 +34,6 @@ local function acceptSasukeMission()
     end)
 end
 
--- 🔁 Summon Sasuke
 local function summonSasuke()
     pcall(function()
         local r = ReplicatedStorage:WaitForChild("Missions"):WaitForChild("BossScrolls"):WaitForChild("Sasuke"):FindFirstChild("Summon")
@@ -46,7 +44,6 @@ local function summonSasuke()
     end)
 end
 
--- ⏳ Wait for spawn
 local function waitForSasuke()
     for _ = 1, 20 do
         local boss = workspace:FindFirstChild("BossScrolls")
@@ -60,7 +57,6 @@ local function waitForSasuke()
     return nil
 end
 
--- 📍 TP loop
 task.spawn(function()
     while true do
         if _G.autoFarm then
@@ -82,7 +78,6 @@ task.spawn(function()
     end
 end)
 
--- 🌀 Substitution every 0.3s
 task.spawn(function()
     while true do
         if _G.autoFarm then
@@ -102,7 +97,6 @@ task.spawn(function()
     end
 end)
 
--- 🧘 GainChi every 3s
 task.spawn(function()
     while true do
         if _G.autoFarm then
@@ -115,7 +109,6 @@ task.spawn(function()
     end
 end)
 
--- 📥 Claim scroll
 local function claimScroll()
     pcall(function()
         local scroll = workspace:FindFirstChild("BossScrolls")
@@ -127,7 +120,6 @@ local function claimScroll()
     end)
 end
 
--- 👊 M1 Combat
 local function autoM1(root)
     while root and root.Parent and _G.autoFarm do
         pcall(function()
@@ -139,7 +131,6 @@ local function autoM1(root)
             claimScroll()
         end)
         wait(attackDelay)
-
         root = workspace:FindFirstChild("BossScrolls")
             and workspace.BossScrolls:FindFirstChild("Bosses")
             and workspace.BossScrolls.Bosses:FindFirstChild("Sasuke Uchiha | Rouge")
@@ -147,7 +138,6 @@ local function autoM1(root)
     end
 end
 
--- 🔁 Main loop
 task.spawn(function()
     while true do
         if _G.autoFarm then
@@ -167,4 +157,4 @@ task.spawn(function()
     end
 end)
 
-print("✅ Auto Sasuke Farm (BlueStacks) with F6 toggle loaded.")
+print("✅ BlueStacks Auto Sasuke Farm script with F6 toggle loaded.")
