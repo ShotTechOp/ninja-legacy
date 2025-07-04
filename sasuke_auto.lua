@@ -1,17 +1,25 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 
--- Toggle farming
+-- Toggle state
 _G.autoFarm = true
 
--- 🛡️ Anti-AFK (safe for BlueStacks)
+-- 🔁 Toggle on F6
+UIS.InputBegan:Connect(function(input, processed)
+    if not processed and input.KeyCode == Enum.KeyCode.F6 then
+        _G.autoFarm = not _G.autoFarm
+        print("🔁 AutoFarm toggled to:", _G.autoFarm)
+    end
+end)
+
+-- 🛡️ BlueStacks-safe Anti-AFK
 pcall(function()
     local vu = game:GetService("VirtualUser")
     player.Idled:Connect(function()
-        vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-        wait(1)
-        vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+        vu:CaptureController()
+        vu:ClickButton2(Vector2.new())
         print("✅ Anti-AFK triggered")
     end)
 end)
@@ -19,7 +27,40 @@ end)
 local combatRemote = ReplicatedStorage:WaitForChild("Combat"):WaitForChild("Remotes"):WaitForChild("Combat")
 local attackDelay = 0.1
 
--- 🔁 TP to Sasuke every 0.5s
+-- 📜 Accept Sasuke mission
+local function acceptSasukeMission()
+    pcall(function()
+        local r = ReplicatedStorage:WaitForChild("Missions"):WaitForChild("BossScrolls"):WaitForChild("Sasuke"):FindFirstChild("Accept")
+        if r then r:FireServer() end
+    end)
+end
+
+-- 🔁 Summon Sasuke
+local function summonSasuke()
+    pcall(function()
+        local r = ReplicatedStorage:WaitForChild("Missions"):WaitForChild("BossScrolls"):WaitForChild("Sasuke"):FindFirstChild("Summon")
+        local bosses = workspace:FindFirstChild("BossScrolls") and workspace.BossScrolls:FindFirstChild("Bosses")
+        if r and bosses and not bosses:FindFirstChild("Sasuke Uchiha | Rouge") then
+            r:FireServer()
+        end
+    end)
+end
+
+-- ⏳ Wait for spawn
+local function waitForSasuke()
+    for _ = 1, 20 do
+        local boss = workspace:FindFirstChild("BossScrolls")
+            and workspace.BossScrolls:FindFirstChild("Bosses")
+            and workspace.BossScrolls.Bosses:FindFirstChild("Sasuke Uchiha | Rouge")
+        if boss and boss:FindFirstChild("HumanoidRootPart") then
+            return boss.HumanoidRootPart
+        end
+        wait(1)
+    end
+    return nil
+end
+
+-- 📍 TP loop
 task.spawn(function()
     while true do
         if _G.autoFarm then
@@ -41,79 +82,38 @@ task.spawn(function()
     end
 end)
 
--- 🔁 Substitution every 0.3s
+-- 🌀 Substitution every 0.3s
 task.spawn(function()
     while true do
         if _G.autoFarm then
             pcall(function()
-                local subRemote = player:WaitForChild("PlayerGui")
-                    :WaitForChild("SubstitutionMobile")
-                    :WaitForChild("Frame")
-                    :WaitForChild("ImageButton")
-                    :WaitForChild("LocalScript")
-                    :WaitForChild("RemoteEvent")
-                subRemote:FireServer()
+                local sub = player:FindFirstChild("PlayerGui")
+                if sub then
+                    sub = sub:FindFirstChild("SubstitutionMobile")
+                    and sub.SubstitutionMobile:FindFirstChild("Frame")
+                    and sub.SubstitutionMobile.Frame:FindFirstChild("ImageButton")
+                    and sub.SubstitutionMobile.Frame.ImageButton:FindFirstChild("LocalScript")
+                    and sub.SubstitutionMobile.Frame.ImageButton.LocalScript:FindFirstChild("RemoteEvent")
+                    if sub then sub:FireServer() end
+                end
             end)
         end
         wait(0.3)
     end
 end)
 
--- 🔁 GainChi every 3s
+-- 🧘 GainChi every 3s
 task.spawn(function()
     while true do
         if _G.autoFarm then
             pcall(function()
-                local chiRemote = ReplicatedStorage
-                    :WaitForChild("RemoteEvents")
-                    :WaitForChild("GainChi")
-                chiRemote:FireServer()
+                local chi = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("GainChi")
+                chi:FireServer()
             end)
         end
         wait(3)
     end
 end)
-
--- 📜 Accept Sasuke mission
-local function acceptSasukeMission()
-    pcall(function()
-        local acceptRemote = ReplicatedStorage
-            :WaitForChild("Missions")
-            :WaitForChild("BossScrolls")
-            :WaitForChild("Sasuke")
-            :FindFirstChild("Accept")
-        if acceptRemote then acceptRemote:FireServer() end
-    end)
-end
-
--- 🔁 Summon Sasuke
-local function summonSasuke()
-    pcall(function()
-        local summonRemote = ReplicatedStorage
-            :WaitForChild("Missions")
-            :WaitForChild("BossScrolls")
-            :WaitForChild("Sasuke")
-            :FindFirstChild("Summon")
-        local bosses = workspace:FindFirstChild("BossScrolls") and workspace.BossScrolls:FindFirstChild("Bosses")
-        if summonRemote and bosses and not bosses:FindFirstChild("Sasuke Uchiha | Rouge") then
-            summonRemote:FireServer()
-        end
-    end)
-end
-
--- ⏳ Wait for Sasuke to spawn
-local function waitForSasuke()
-    for _ = 1, 20 do
-        local boss = workspace:FindFirstChild("BossScrolls")
-            and workspace.BossScrolls:FindFirstChild("Bosses")
-            and workspace.BossScrolls.Bosses:FindFirstChild("Sasuke Uchiha | Rouge")
-        if boss and boss:FindFirstChild("HumanoidRootPart") then
-            return boss.HumanoidRootPart
-        end
-        wait(1)
-    end
-    return nil
-end
 
 -- 📥 Claim scroll
 local function claimScroll()
@@ -127,7 +127,7 @@ local function claimScroll()
     end)
 end
 
--- 👊 M1 loop
+-- 👊 M1 Combat
 local function autoM1(root)
     while root and root.Parent and _G.autoFarm do
         pcall(function()
@@ -167,4 +167,4 @@ task.spawn(function()
     end
 end)
 
-print("✅ Auto Sasuke (BlueStacks) started — toggle with _G.autoFarm = true/false")
+print("✅ Auto Sasuke Farm (BlueStacks) with F6 toggle loaded.")
