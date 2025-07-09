@@ -59,13 +59,13 @@ task.spawn(function()
     end
 end)
 
--- 🔁 GainChi every 3s
+-- 🔁 GainChi every 2s (updated)
 task.spawn(function()
     while _G.autoFarm do
         pcall(function()
             chiRemote:FireServer()
         end)
-        wait(3)
+        wait(2)
     end
 end)
 
@@ -178,6 +178,21 @@ task.spawn(function()
         end)
         wait(2)
     end
+end)
+
+-- 🎮 F6 Toggle Keybind
+pcall(function()
+    local UserInputService = game:GetService("UserInputService")
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if not gameProcessed and input.KeyCode == Enum.KeyCode.F6 then
+            _G.autoFarm = not _G.autoFarm
+            if _G.autoFarm then
+                print("✅ Auto-Farm Toggled ON")
+            else
+                print("❌ Auto-Farm Toggled OFF")
+            end
+        end
+    end)
 end)
 
 print("✅ [Sasuke Auto-Farm Script Started ✅] (BlueStacks Compatible)")
