@@ -77,7 +77,7 @@ task.spawn(function()
     end
 end)
 
--- 🔥 Fireball Jutsu every 1.5s
+-- 🔥 Fireball Jutsu every 2.5s
 task.spawn(function()
     while true do
         if autoFarm then
@@ -85,10 +85,13 @@ task.spawn(function()
                 local fireball = ReplicatedStorage:FindFirstChild("RemoteEvents")
                     :FindFirstChild("Ninjutsu")
                     :FindFirstChild("Fireball")
-                if fireball then fireball:FireServer() end
+                if fireball then
+                    fireball:FireServer()
+                    print("🔥 Fireball Jutsu fired")
+                end
             end)
         end
-        wait(1.5)
+        wait(2.5)
     end
 end)
 
