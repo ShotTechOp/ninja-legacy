@@ -3,7 +3,7 @@ local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 
--- 🔁 Toggle key
+-- 🔁 Toggle key (F6)
 local autoFarm = true
 UIS.InputBegan:Connect(function(input, gameProcessed)
     if input.KeyCode == Enum.KeyCode.F6 and not gameProcessed then
@@ -77,17 +77,27 @@ task.spawn(function()
     end
 end)
 
--- 🔥 Fireball Jutsu every 2.5s
+-- 🔥 Fireball Jutsu every 2.5s (taken from working Minato script)
 task.spawn(function()
     while true do
         if autoFarm then
             pcall(function()
-                local fireball = ReplicatedStorage:FindFirstChild("RemoteEvents")
-                    :FindFirstChild("Ninjutsu")
-                    :FindFirstChild("Fireball")
-                if fireball then
-                    fireball:FireServer()
-                    print("🔥 Fireball Jutsu fired")
+                local fireballRemote = ReplicatedStorage:FindFirstChild("RemoteEvents")
+                if fireballRemote then
+                    local ninjutsu = fireballRemote:FindFirstChild("Ninjutsu")
+                    if ninjutsu then
+                        local fireball = ninjutsu:FindFirstChild("Fireball")
+                        if fireball then
+                            print("🔥 Firing Fireball Jutsu")
+                            fireball:FireServer()
+                        else
+                            warn("⚠️ Fireball Remote not found!")
+                        end
+                    else
+                        warn("⚠️ Ninjutsu folder not found!")
+                    end
+                else
+                    warn("⚠️ RemoteEvents not found!")
                 end
             end)
         end
