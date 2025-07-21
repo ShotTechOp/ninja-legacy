@@ -76,7 +76,7 @@ task.spawn(function()
             fireballRemote:FireServer()
             print("🔥 Fireball Jutsu triggered")
         end)
-        wait(5)
+        wait(1.5)
     end
 end)
 
