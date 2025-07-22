@@ -1,7 +1,16 @@
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
 local player = Players.LocalPlayer
+
+-- 🔁 Toggle key (F6)
+local autoFarm = true
+UIS.InputBegan:Connect(function(input, gameProcessed)
+    if input.KeyCode == Enum.KeyCode.F6 and not gameProcessed then
+        autoFarm = not autoFarm
+        print("⚙️ AutoFarm toggled:", autoFarm)
+    end
+end)
 
 -- 🛡️ Anti-AFK
 pcall(function()
@@ -14,81 +23,85 @@ pcall(function()
     end)
 end)
 
--- Settings
-local attackDelay = 0.1
-local fireballCooldown = 1.5
-local sharinganUsed = false
-_G.autoFarm = true
-
--- Remotes
 local combatRemote = ReplicatedStorage:WaitForChild("Combat"):WaitForChild("Remotes"):WaitForChild("Combat")
-local chiRemote = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("GainChi")
-local subRemote = player:WaitForChild("PlayerGui"):WaitForChild("SubstitutionMobile")
-    :WaitForChild("Frame"):WaitForChild("ImageButton"):WaitForChild("LocalScript"):WaitForChild("RemoteEvent")
-local fireballRemote = ReplicatedStorage:WaitForChild("SkillRemotes")
-    :WaitForChild("Jutsu"):WaitForChild("FireStyle"):WaitForChild("FireBall"):WaitForChild("RemoteEvent")
-local transformRemote = ReplicatedStorage:WaitForChild("Jutsu"):WaitForChild("Modes")
-    :WaitForChild("Sharingan"):WaitForChild("MS"):WaitForChild("ShisuiMS")
-    :WaitForChild("Stage3"):WaitForChild("Transform")
+local attackDelay = 0.1
 
 -- 🔁 TP to Pain every 0.5s
 task.spawn(function()
-    while _G.autoFarm do
-        pcall(function()
-            local boss = workspace:FindFirstChild("Pain | Akatsuki")
-            if boss then
-                local bossRoot = boss:FindFirstChild("HumanoidRootPart")
-                local myChar = player.Character or player.CharacterAdded:Wait()
-                local myHRP = myChar:FindFirstChild("HumanoidRootPart")
-                if bossRoot and myHRP then
-                    myHRP.CFrame = bossRoot.CFrame * CFrame.new(0, 0, 8)
+    while true do
+        if autoFarm then
+            pcall(function()
+                local boss = workspace:FindFirstChild("Pain | Akatsuki")
+                if boss then
+                    local bossRoot = boss:FindFirstChild("HumanoidRootPart")
+                    local myChar = player.Character or player.CharacterAdded:Wait()
+                    local myHRP = myChar:FindFirstChild("HumanoidRootPart")
+                    if bossRoot and myHRP then
+                        myHRP.CFrame = bossRoot.CFrame * CFrame.new(0, 0, 8)
+                    end
                 end
-            end
-        end)
+            end)
+        end
         wait(0.5)
     end
 end)
 
 -- 🔁 Substitution every 0.3s
 task.spawn(function()
-    while _G.autoFarm do
-        pcall(function()
-            subRemote:FireServer()
-        end)
+    while true do
+        if autoFarm then
+            pcall(function()
+                local subRemote = player:WaitForChild("PlayerGui")
+                    :WaitForChild("SubstitutionMobile")
+                    :WaitForChild("Frame")
+                    :WaitForChild("ImageButton")
+                    :WaitForChild("LocalScript")
+                    :WaitForChild("RemoteEvent")
+                subRemote:FireServer()
+            end)
+        end
         wait(0.3)
     end
 end)
 
--- 🔁 GainChi every 2s
+-- 🔁 GainChi every 3s
 task.spawn(function()
-    while _G.autoFarm do
-        pcall(function()
-            chiRemote:FireServer()
-        end)
-        wait(2)
+    while true do
+        if autoFarm then
+            pcall(function()
+                local chiRemote = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("GainChi")
+                chiRemote:FireServer()
+            end)
+        end
+        wait(3)
     end
 end)
 
--- 🔥 Fireball Jutsu every 1.5s
+-- 🔥 Fireball Jutsu every 2.5s (taken from working Minato script)
 task.spawn(function()
-    while _G.autoFarm do
-        pcall(function()
-            fireballRemote:FireServer()
-            print("🔥 Fireball Jutsu triggered")
-        end)
-        wait(fireballCooldown)
-    end
-end)
-
--- 🧠 Sharingan MS Transform (once)
-task.spawn(function()
-    while not sharinganUsed do
-        pcall(function()
-            transformRemote:FireServer()
-            sharinganUsed = true
-            print("🧠 Shisui MS Stage 3 Transform triggered")
-        end)
-        wait(1)
+    while true do
+        if autoFarm then
+            pcall(function()
+                local fireballRemote = ReplicatedStorage:FindFirstChild("RemoteEvents")
+                if fireballRemote then
+                    local ninjutsu = fireballRemote:FindFirstChild("Ninjutsu")
+                    if ninjutsu then
+                        local fireball = ninjutsu:FindFirstChild("Fireball")
+                        if fireball then
+                            print("🔥 Firing Fireball Jutsu")
+                            fireball:FireServer()
+                        else
+                            warn("⚠️ Fireball Remote not found!")
+                        end
+                    else
+                        warn("⚠️ Ninjutsu folder not found!")
+                    end
+                else
+                    warn("⚠️ RemoteEvents not found!")
+                end
+            end)
+        end
+        wait(2.5)
     end
 end)
 
@@ -108,20 +121,22 @@ end
 
 -- 👊 M1 Combat loop
 task.spawn(function()
-    while _G.autoFarm do
-        pcall(function()
-            local boss = workspace:FindFirstChild("Pain | Akatsuki")
-            if boss and boss:FindFirstChild("HumanoidRootPart") then
-                combatRemote:FireServer({
-                    Skill = "M1",
-                    Target = boss.HumanoidRootPart,
-                    Position = boss.HumanoidRootPart.Position
-                })
-                claimPainDrop()
-            end
-        end)
+    while true do
+        if autoFarm then
+            pcall(function()
+                local boss = workspace:FindFirstChild("Pain | Akatsuki")
+                if boss and boss:FindFirstChild("HumanoidRootPart") then
+                    combatRemote:FireServer({
+                        Skill = "M1",
+                        Target = boss.HumanoidRootPart,
+                        Position = boss.HumanoidRootPart.Position
+                    })
+                    claimPainDrop()
+                end
+            end)
+        end
         wait(attackDelay)
     end
 end)
 
-print("✅ [Pain Auto-Farm Script Started ✅] (Fireball + ShisuiMS Transform enabled)")
+print("✅ Auto Pain Boss Farm Started (F6 to toggle)")
