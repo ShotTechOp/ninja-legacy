@@ -1,84 +1,130 @@
-_G.autoMandaFarm = true
+local enabled = false
+local UIS = game:GetService("UserInputService")
+local rs = game:GetService("ReplicatedStorage")
+local lp = game:GetService("Players").LocalPlayer
 
--- [🔥 Start]
-local rs, plr, char = game:GetService("ReplicatedStorage"), game.Players.LocalPlayer, game.Players.LocalPlayer.Character
-local function getChar() return plr.Character or workspace:WaitForChild(plr.Name) end
-local function waitForManda() while not workspace.BossScrolls.Bosses:FindFirstChild("Manda") and _G.autoMandaFarm do task.wait(0.1) end end
+-- :radio_button: F6 Toggle
+UIS.InputBegan:Connect(function(input, gp)
+	if input.KeyCode == Enum.KeyCode.F6 then
+		enabled = not enabled
+		print(":repeat: Auto Manda Farm " .. (enabled and ":white_check_mark: Enabled" or ":x: Disabled"))
+	end
+end)
 
--- [📍 TP to Manda]
-local function tpToManda()
-    local boss = workspace.BossScrolls.Bosses:FindFirstChild("Manda")
-    if boss and boss:FindFirstChild("HumanoidRootPart") then
-        getChar():WaitForChild("HumanoidRootPart").CFrame = boss.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
-    end
+-- :shield: Anti-AFK
+lp.Idled:Connect(function()
+	game:GetService("VirtualUser"):Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+	wait(1)
+	game:GetService("VirtualUser"):Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+end)
+
+-- :stopwatch: Cooldown tracking table
+local cooldowns = {
+	transform = 1000,
+	gainChi = 0.5,
+	spec = 10,
+	kirin = 60,
+	ragingFlames = 2,
+	fireBall = 2,
+	flamingDragon = 2,
+	phoenixFlames = 2,
+	greatFireBall = 2,
+	mandaSummon = 30
+}
+local lastUsed = {}
+
+-- :hourglass_flowing_sand: Init all to 0
+for k in pairs(cooldowns) do
+	lastUsed[k] = 0
 end
 
--- [⚔️ Remote Combat]
-local function attack()
-    pcall(function()
-        rs:WaitForChild("Combat"):WaitForChild("Remotes"):WaitForChild("Combat"):FireServer()
-    end)
-end
-
--- [🔥 Fireball every 1.5s]
+-- :repeat: Loop
 task.spawn(function()
-    while _G.autoMandaFarm do
-        pcall(function()
-            rs:WaitForChild("SkillRemotes"):WaitForChild("Jutsu"):WaitForChild("Ninjutsu"):WaitForChild("FireStyle"):WaitForChild("FireBall"):WaitForChild("RemoteEvent"):FireServer()
-        end)
-        task.wait(1.5)
-    end
+	while task.wait(0.1) do
+		if enabled then
+			local t = tick()
+
+			-- :snake: Summon Manda
+			if t - lastUsed.mandaSummon >= cooldowns.mandaSummon then
+				pcall(function()
+					rs.Missions.BossScrolls.Manda.Summon:FireServer()
+				end)
+				lastUsed.mandaSummon = t
+			end
+
+			-- :diamond_shape_with_a_dot_inside: Transform
+			if t - lastUsed.transform >= cooldowns.transform then
+				pcall(function()
+					rs.RemoteEvents.TransformEvent:FireServer()
+				end)
+				lastUsed.transform = t
+			end
+
+			-- :battery: Gain Chi
+			if t - lastUsed.gainChi >= cooldowns.gainChi then
+				pcall(function()
+					rs.RemoteEvents.GainChi:FireServer()
+				end)
+				lastUsed.gainChi = t
+			end
+
+			-- :zap: Sharingan Spec
+			if t - lastUsed.spec >= cooldowns.spec then
+				pcall(function()
+					rs.Jutsu.Modes.Sharingan.MS.SasukeMS.Stage3.Spec:FireServer()
+				end)
+				lastUsed.spec = t
+			end
+
+			-- :zap: Kirin
+			if t - lastUsed.kirin >= cooldowns.kirin then
+				pcall(function()
+					rs.SkillRemotes.Jutsu.Ninjutsu.LightningStyle.Kirin.RemoteEvent:FireServer()
+				end)
+				lastUsed.kirin = t
+			end
+
+			-- :fire: Fire Style: Raging Flames
+			if t - lastUsed.ragingFlames >= cooldowns.ragingFlames then
+				pcall(function()
+					rs.SkillRemotes.Jutsu.ClanJutsu.Uchiha.RagingFlames.RemoteEvent:FireServer()
+				end)
+				lastUsed.ragingFlames = t
+			end
+
+			-- :fire: Fire Style: Fireball
+			if t - lastUsed.fireBall >= cooldowns.fireBall then
+				pcall(function()
+					rs.SkillRemotes.Jutsu.Ninjutsu.FireStyle.FireBall.RemoteEvent:FireServer()
+				end)
+				lastUsed.fireBall = t
+			end
+
+			-- :fire: Fire Style: Flaming Dragon
+			if t - lastUsed.flamingDragon >= cooldowns.flamingDragon then
+				pcall(function()
+					rs.SkillRemotes.Jutsu.Ninjutsu.FireStyle["Flaming Dragon"].RemoteEvent:FireServer()
+				end)
+				lastUsed.flamingDragon = t
+			end
+
+			-- :fire: Fire Style: Phoenix Flames
+			if t - lastUsed.phoenixFlames >= cooldowns.phoenixFlames then
+				pcall(function()
+					rs.SkillRemotes.Jutsu.Ninjutsu.FireStyle.PhoenixFlames.RemoteEvent:FireServer()
+				end)
+				lastUsed.phoenixFlames = t
+			end
+
+			-- :fire: Fire Style: Great Fireball
+			if t - lastUsed.greatFireBall >= cooldowns.greatFireBall then
+				pcall(function()
+					rs.SkillRemotes.Jutsu.Ninjutsu.FireStyle.GreatFireBall.RemoteEvent:FireServer()
+				end)
+				lastUsed.greatFireBall = t
+			end
+		end
+	end
 end)
 
--- [🔁 Gain Chakra every 3s]
-task.spawn(function()
-    while _G.autoMandaFarm do
-        pcall(function()
-            rs:WaitForChild("Remotes"):WaitForChild("GainChi"):FireServer()
-        end)
-        task.wait(3)
-    end
-end)
-
--- [💨 Auto Substitution every 0.3s]
-task.spawn(function()
-    while _G.autoMandaFarm do
-        pcall(function()
-            rs:WaitForChild("Remotes"):WaitForChild("Sub"):FireServer()
-        end)
-        task.wait(0.3)
-    end
-end)
-
--- [🧠 Mode Transform (MS Stage 3)]
-task.spawn(function()
-    while _G.autoMandaFarm do
-        pcall(function()
-            rs:WaitForChild("Jutsu"):WaitForChild("Modes"):WaitForChild("Sharingan"):WaitForChild("MS"):WaitForChild("SasukeMS"):WaitForChild("Stage3"):WaitForChild("Transform"):FireServer()
-        end)
-        task.wait(5)
-    end
-end)
-
--- [🌀 Summon Manda]
-local function summonManda()
-    pcall(function()
-        rs:WaitForChild("Missions"):WaitForChild("BossScrolls"):WaitForChild("Manda"):WaitForChild("Summon"):FireServer()
-    end)
-end
-
--- [🔁 Main Loop]
-task.spawn(function()
-    while _G.autoMandaFarm do
-        summonManda()
-        waitForManda()
-        while workspace.BossScrolls.Bosses:FindFirstChild("Manda") and _G.autoMandaFarm do
-            tpToManda()
-            attack()
-            task.wait(0.1)
-        end
-        task.wait(1)
-    end
-end)
-
-print("✅ Auto Manda Farm with Remote Fireball, Combat, Transform started.")
+print(":white_check_mark: Auto Manda Script Loaded (Cooldowns Active). Press F6 to toggle.")
