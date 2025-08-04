@@ -89,7 +89,7 @@ task.spawn(function()
                 chiRemote:FireServer()
             end)
         end
-        wait(2)
+        wait(0.5)
     end
 end)
 
