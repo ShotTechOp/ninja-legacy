@@ -3,6 +3,30 @@ local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 
+-- GUI Toggle
+_G.autoFarm = true
+
+-- GUI
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+screenGui.Name = "WarFarmToggleGui"
+
+local toggleButton = Instance.new("TextButton")
+toggleButton.Parent = screenGui
+toggleButton.Size = UDim2.new(0, 150, 0, 50)
+toggleButton.Position = UDim2.new(0, 20, 0, 100)
+toggleButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.Text = "🟢 AutoFarm ON"
+toggleButton.Font = Enum.Font.SourceSansBold
+toggleButton.TextSize = 20
+toggleButton.Draggable = true
+toggleButton.Active = true
+
+toggleButton.MouseButton1Click:Connect(function()
+    _G.autoFarm = not _G.autoFarm
+    toggleButton.Text = _G.autoFarm and "🟢 AutoFarm ON" or "🔴 AutoFarm OFF"
+end)
+
 -- 🛡️ Anti-AFK
 pcall(function()
     local vu = game:GetService("VirtualUser")
@@ -14,24 +38,14 @@ pcall(function()
     end)
 end)
 
--- 🔁 Toggle
-_G.autoFarm = true
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if input.KeyCode == Enum.KeyCode.F6 and not gameProcessed then
-        _G.autoFarm = not _G.autoFarm
-        print(_G.autoFarm and "✅ AutoFarm ON" or "❌ AutoFarm OFF")
-    end
-end)
-
 -- Remotes
 local combatRemote = ReplicatedStorage:WaitForChild("Combat"):WaitForChild("Remotes"):WaitForChild("Combat")
 local skillRemote = ReplicatedStorage:WaitForChild("SkillRemotes"):WaitForChild("Jutsu"):WaitForChild("ClanJutsu"):WaitForChild("Uchiha"):WaitForChild("RagingFlames"):WaitForChild("RemoteEvent")
 local transformRemote = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("TransformEvent")
-
 local attackDelay = 0.1
 local transformed = false
 
--- 🧿 All valid War Mode enemies
+-- Enemy list
 local enemyNames = {
     "White Zetsu", "Ten Tails",
     "Madara Uchiha | Shinobi",
@@ -49,7 +63,7 @@ local enemyNames = {
     "Shisui Uchiha | Jonin"
 }
 
--- 🔁 Teleport to any active enemy
+-- TP to enemy
 task.spawn(function()
     while true do
         if _G.autoFarm then
@@ -71,7 +85,7 @@ task.spawn(function()
     end
 end)
 
--- 👊 M1 attack loop
+-- M1 Combat
 task.spawn(function()
     while true do
         if _G.autoFarm then
@@ -93,7 +107,7 @@ task.spawn(function()
     end
 end)
 
--- 🌀 Substitution
+-- Substitution
 task.spawn(function()
     while true do
         if _G.autoFarm then
@@ -115,7 +129,7 @@ task.spawn(function()
     end
 end)
 
--- 🧘 GainChi
+-- GainChi
 task.spawn(function()
     while true do
         if _G.autoFarm then
@@ -128,7 +142,7 @@ task.spawn(function()
     end
 end)
 
--- 🔥 Raging Flames skill
+-- Raging Flames skill
 task.spawn(function()
     while true do
         if _G.autoFarm then
@@ -140,7 +154,7 @@ task.spawn(function()
     end
 end)
 
--- 🧿 Fire transform once
+-- One-time Transform
 task.spawn(function()
     if not transformed then
         pcall(function()
@@ -150,4 +164,4 @@ task.spawn(function()
     end
 end)
 
-print("✅ War Mode Auto-Farm (Mobile + F6 Toggle) loaded.")
+print("✅ War Mode Auto-Farm (Mobile + GUI Toggle) loaded.")
