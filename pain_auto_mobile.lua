@@ -90,7 +90,7 @@ task.spawn(function()
                 RS.RemoteEvents.GainChi:FireServer()
             end)
         end
-        wait(3)
+        wait(0.5)
     end
 end)
 
